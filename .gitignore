@@ -1,0 +1,16 @@
+# Build results
+bin/
+obj/
+
+# Debug / Release folders
+[Dd]ebug/
+[Rr]elease/
+
+# Visual Studio files
+.vs/
+*.user
+*.suo
+
+# OS-specific junk
+Thumbs.db
+.DS_Store
