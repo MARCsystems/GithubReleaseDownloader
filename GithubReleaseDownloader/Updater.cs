@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -10,7 +12,7 @@ using System.Threading;
 
 namespace GithubReleaseDownloader
 {
-    internal class Updater
+    public class Updater
     {
         #region Events
         public event Action<string> CheckUpdateReport;
@@ -22,7 +24,7 @@ namespace GithubReleaseDownloader
         #region Private Variables
         private string repositoryOwner = "";
         private string repositoryName = "";
-        private Version currentAppVersion = new Version();
+        private Version currentAppVersion = new Version(0,0,0,0);
         private string updateFilePath = "";
         private string tokenID = "";
 
@@ -92,8 +94,100 @@ namespace GithubReleaseDownloader
         }
         #endregion
 
-        #region Download and Install
-        public async void BeginDownload()
+        #region Query, Download and Install
+        public void CheckForUpdates()
+        {
+            Thread updateThread = new Thread(() =>
+            {
+                #region Update Fetching Cycle
+                do
+                {
+                    try
+                    {
+                        using (HttpClient client = new HttpClient())
+                        {
+                            if (!string.IsNullOrEmpty(tokenID))
+                            {
+                                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokenID);
+                            }
+                            client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0");
+                            HttpResponseMessage response = client.GetAsync(GetReleaseUrl()).Result;
+                            if (response.IsSuccessStatusCode)
+                            {
+                                if (response.RequestMessage.RequestUri.ToString().StartsWith("https://api.github.com/"))
+                                {
+                                    string jsonData = response.Content.ReadAsStringAsync().Result;
+                                    JArray releases = JArray.Parse(jsonData);
+
+                                    foreach (var release in releases)
+                                    {
+                                        DateTime publishTime;
+                                        try // Parse with NLS standards
+                                        {
+                                            publishTime = DateTime.Parse(release["published_at"].ToString(), CultureInfo.CurrentCulture, DateTimeStyles.AdjustToUniversal);
+                                        }
+                                        catch (Exception dtEx)// Parse with ICU standards
+                                        {
+                                            Console.WriteLine($"Time String Parse: {release["published_at"].ToString()}\r\n\r\n{dtEx.Message}\r\n\r\n{dtEx.StackTrace}", "Win11 DateTime Parsing Error");
+                                            publishTime = DateTime.MinValue;
+                                        }
+
+                                        VersionEntry versionEntry = VersionEntry.StoreEntry(release["name"].ToString(), release["tag_name"].ToString(), release["body"].ToString(), publishTime, (bool)release["prerelease"]);
+                                        foreach (var asset in release["assets"])
+                                        {
+                                            if (asset["content_type"].ToString() == "application/x-msdownload")
+                                            {
+                                                versionEntry.RegisterAsset(VersionEntry.VersionAsset.RegisterAssets(
+                                                    asset["name"].ToString(),
+                                                    Convert.ToInt64(asset["size"].ToString()),
+                                                    asset["browser_download_url"].ToString(),
+                                                    asset["digest"]?.ToString() ?? "N/A"
+                                                    ));
+                                            }
+                                        }
+                                        versions.Add(versionEntry);
+                                        CheckUpdateReport?.Invoke($"Fetched version {versionEntry.VersionSequence}");
+                                    }
+                                    VersionEntry stableVersion = versions.Where(v => !v.IsPreRelease).Where(v => v.VersionInfo.CompareTo(currentAppVersion) == 1).OrderByDescending(v => v.VersionInfo).FirstOrDefault();
+
+                                    VersionEntry prereleaseVersion = versions.Where(v => v.IsPreRelease).Where(v => v.VersionInfo.CompareTo(currentAppVersion) == 1).Where(v => v.VersionInfo.CompareTo(stableVersion?.VersionInfo ?? currentAppVersion) == 1).OrderByDescending(v => v.VersionInfo).FirstOrDefault();
+
+                                    if (stableVersion != null || prereleaseVersion != null)
+                                    {
+                                        CheckUpdateReport?.Invoke($"{(stableVersion != null ? "Stable" : "")}{(stableVersion != null && prereleaseVersion != null ? " and " : "")}{(prereleaseVersion != null ? "Pre-Release" : "")} version{(stableVersion != null && prereleaseVersion != null ? "s" : "")} are available for download.");
+                                    }
+                                    else
+                                    {
+                                        CheckUpdateReport?.Invoke("No updates available.");
+                                    }
+                                    ReportReady?.Invoke();
+                                }
+                                else
+                                {
+                                    CheckUpdateReport?.Invoke($"Cannot get to Github Release Server! Redirect Detected at [{response.RequestMessage.RequestUri.ToString()}] [Status Code {response.StatusCode}]");
+                                }
+                            }
+                            else
+                            {
+                                CheckUpdateReport?.Invoke($"Failed to fetch updates! {response.ToString()} [Status Code {response.StatusCode}]");
+                            }
+                        }
+                    }
+                    catch (Exception err)
+                    {
+                        CheckUpdateReport?.Invoke($"Failed to fetch version releases. The following error(s) has occured! [{err.Message}]");
+                        break;
+                    }
+                    break;
+                    #endregion
+                } while (true);
+            });
+            updateThread.Name = $"Update Checker";
+            updateThread.IsBackground = true;
+            updateThread.Start();
+        }
+
+        public async void BeginDownload(string downloadUrl)
         {
             using (HttpClient client = new HttpClient())
             {
@@ -104,7 +198,7 @@ namespace GithubReleaseDownloader
                         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokenID);
                     }
 
-                    using (HttpResponseMessage response = await client.GetAsync(GetReleaseUrl()))
+                    using (HttpResponseMessage response = await client.GetAsync(downloadUrl))
                     {
                         if (response.IsSuccessStatusCode)
                         {
