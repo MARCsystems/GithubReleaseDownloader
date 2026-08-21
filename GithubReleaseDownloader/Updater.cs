@@ -16,7 +16,7 @@ namespace GithubReleaseDownloader
     {
         #region Events
         public event Action<string> CheckUpdateReport;
-        public event Action ReportReady;
+        public event Action CheckUpdateReportReady;
         public event Action<string, string, double> ReportDownloadPercentage;
         public event Action<bool, string> DownloadReport;
         #endregion
@@ -34,7 +34,7 @@ namespace GithubReleaseDownloader
         #region Private Functions
         private string GetReleaseUrl()
         {
-            return $"https://api.github.com/repos/{repositoryOwner}/{repositoryName}/release";
+            return $"https://api.github.com/repos/{repositoryOwner}/{repositoryName}/releases";
         }
         #endregion
 
@@ -95,8 +95,9 @@ namespace GithubReleaseDownloader
         #endregion
 
         #region Query, Download and Install
-        public void CheckForUpdates()
+        public void CheckForUpdates(string mimetype, bool interruptIfFail = false)
         {
+            versions.Clear();
             Thread updateThread = new Thread(() =>
             {
                 #region Update Fetching Cycle
@@ -126,7 +127,7 @@ namespace GithubReleaseDownloader
                                         {
                                             publishTime = DateTime.Parse(release["published_at"].ToString(), CultureInfo.CurrentCulture, DateTimeStyles.AdjustToUniversal);
                                         }
-                                        catch (Exception dtEx)// Parse with ICU standards
+                                        catch (Exception dtEx) // Parse with ICU standards
                                         {
                                             Console.WriteLine($"Time String Parse: {release["published_at"].ToString()}\r\n\r\n{dtEx.Message}\r\n\r\n{dtEx.StackTrace}", "Win11 DateTime Parsing Error");
                                             publishTime = DateTime.MinValue;
@@ -135,7 +136,7 @@ namespace GithubReleaseDownloader
                                         VersionEntry versionEntry = VersionEntry.StoreEntry(release["name"].ToString(), release["tag_name"].ToString(), release["body"].ToString(), publishTime, (bool)release["prerelease"]);
                                         foreach (var asset in release["assets"])
                                         {
-                                            if (asset["content_type"].ToString() == "application/x-msdownload")
+                                            if (asset["content_type"].ToString() == mimetype || mimetype == "*")
                                             {
                                                 versionEntry.RegisterAsset(VersionEntry.VersionAsset.RegisterAssets(
                                                     asset["name"].ToString(),
@@ -160,23 +161,37 @@ namespace GithubReleaseDownloader
                                     {
                                         CheckUpdateReport?.Invoke("No updates available.");
                                     }
-                                    ReportReady?.Invoke();
+                                    CheckUpdateReportReady?.Invoke();
                                 }
                                 else
                                 {
                                     CheckUpdateReport?.Invoke($"Cannot get to Github Release Server! Redirect Detected at [{response.RequestMessage.RequestUri.ToString()}] [Status Code {response.StatusCode}]");
+                                    if (interruptIfFail)
+                                    {
+                                        CheckUpdateReportReady?.Invoke();
+                                        break;
+                                    }
                                 }
                             }
                             else
                             {
                                 CheckUpdateReport?.Invoke($"Failed to fetch updates! {response.ToString()} [Status Code {response.StatusCode}]");
+                                if (interruptIfFail)
+                                {
+                                    CheckUpdateReportReady?.Invoke();
+                                    break;
+                                }
                             }
                         }
                     }
                     catch (Exception err)
                     {
                         CheckUpdateReport?.Invoke($"Failed to fetch version releases. The following error(s) has occured! [{err.Message}]");
-                        break;
+                        if (interruptIfFail)
+                        {
+                            CheckUpdateReportReady?.Invoke();
+                            break;
+                        }
                     }
                     break;
                     #endregion

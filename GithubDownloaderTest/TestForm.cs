@@ -51,20 +51,34 @@ namespace GithubDownloaderTest
                     txt_Progress.Text = $"[{sizeCurrent}/{sizeTotal}] {percVal.ToString("0.00")}%";
                 }
             };
-            updater.ReportReady += () =>
+            updater.CheckUpdateReportReady += () =>
             {
                 if (InvokeRequired)
                 {
                     Invoke((MethodInvoker)delegate ()
                     {
                         toggleInteractables(true);
+                        populateUpdateTable();
                     });
                 }
                 else
                 {
                     toggleInteractables(true);
+                    populateUpdateTable();
                 }
             };
+        }
+
+        private void populateUpdateTable()
+        {
+            dgv_Releases.Rows.Clear();
+            foreach (VersionEntry entry in updater.FetchedVersions)
+            {
+                foreach(VersionEntry.VersionAsset asset in entry.AssetsInfo)
+                {
+                    dgv_Releases.Rows.Add("⬇", entry.VersionSequence, entry.VersionName, asset.AssetName, asset.AssetHashType);
+                }
+            }
         }
 
         private void toggleInteractables(bool toggle)
@@ -80,7 +94,26 @@ namespace GithubDownloaderTest
 
         private void btn_StartQuery_Click(object sender, EventArgs e)
         {
+            toggleInteractables(false);
+            updater.CurrentAppVersion = new Version(0, 0, 0, 0);
+            updater.RepositoryOwner = txt_RepoOwner.Text.Trim();
+            updater.RepositoryName = txt_RepoName.Text.Trim();
+            updater.TokenID = txt_PrivateRepoKey.Text.Trim();
+            //updater.CheckForUpdates("application/x-msdownload", true);
+            updater.CheckForUpdates("*", true);
+        }
 
+        private void dgv_Releases_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+            
+        }
+
+        private void btn_Browse_Click(object sender, EventArgs e)
+        {
+            if (fbd_downloadpath.ShowDialog() == DialogResult.OK)
+            {
+                txt_TempInstallerPath.Text = fbd_downloadpath.SelectedPath;
+            }
         }
     }
 }
