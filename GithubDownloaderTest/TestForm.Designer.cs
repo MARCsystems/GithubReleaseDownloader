@@ -49,6 +49,7 @@
             this.Column2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Column3 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Column4 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Column6 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgv_Releases)).BeginInit();
             this.SuspendLayout();
@@ -109,27 +110,28 @@
             this.txt_Progress.Size = new System.Drawing.Size(290, 20);
             this.txt_Progress.TabIndex = 10;
             // 
-            // btn_StartDownload
+            // btn_StartQuery
             // 
             this.btn_StartQuery.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.btn_StartQuery.Location = new System.Drawing.Point(6, 166);
-            this.btn_StartQuery.Name = "btn_StartDownload";
+            this.btn_StartQuery.Name = "btn_StartQuery";
             this.btn_StartQuery.Size = new System.Drawing.Size(290, 23);
             this.btn_StartQuery.TabIndex = 9;
             this.btn_StartQuery.Text = "Start Query";
             this.btn_StartQuery.UseVisualStyleBackColor = true;
             this.btn_StartQuery.Click += new System.EventHandler(this.btn_StartQuery_Click);
             // 
-            // button1
+            // btn_Browse
             // 
             this.btn_Browse.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btn_Browse.Location = new System.Drawing.Point(267, 68);
-            this.btn_Browse.Name = "button1";
+            this.btn_Browse.Name = "btn_Browse";
             this.btn_Browse.Size = new System.Drawing.Size(29, 20);
             this.btn_Browse.TabIndex = 8;
             this.btn_Browse.Text = "...";
             this.btn_Browse.UseVisualStyleBackColor = true;
+            this.btn_Browse.Click += new System.EventHandler(this.btn_Browse_Click);
             // 
             // txt_PrivateRepoKey
             // 
@@ -217,7 +219,8 @@
             this.Column1,
             this.Column2,
             this.Column3,
-            this.Column4});
+            this.Column4,
+            this.Column6});
             this.dgv_Releases.Location = new System.Drawing.Point(320, 12);
             this.dgv_Releases.Name = "dgv_Releases";
             this.dgv_Releases.ReadOnly = true;
@@ -225,6 +228,7 @@
             this.dgv_Releases.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
             this.dgv_Releases.Size = new System.Drawing.Size(504, 221);
             this.dgv_Releases.TabIndex = 1;
+            this.dgv_Releases.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgv_Releases_CellContentClick);
             // 
             // Column5
             // 
@@ -232,9 +236,8 @@
             this.Column5.HeaderText = "🧊";
             this.Column5.Name = "Column5";
             this.Column5.ReadOnly = true;
-            this.Column5.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-            this.Column5.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
-            this.Column5.Width = 44;
+            this.Column5.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            this.Column5.Width = 25;
             // 
             // Column1
             // 
@@ -242,7 +245,9 @@
             this.Column1.HeaderText = "Version";
             this.Column1.Name = "Column1";
             this.Column1.ReadOnly = true;
-            this.Column1.Width = 67;
+            this.Column1.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            this.Column1.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.Column1.Width = 48;
             // 
             // Column2
             // 
@@ -250,7 +255,9 @@
             this.Column2.HeaderText = "Release Date";
             this.Column2.Name = "Column2";
             this.Column2.ReadOnly = true;
-            this.Column2.Width = 97;
+            this.Column2.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            this.Column2.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.Column2.Width = 78;
             // 
             // Column3
             // 
@@ -258,7 +265,9 @@
             this.Column3.HeaderText = "Asset Name";
             this.Column3.Name = "Column3";
             this.Column3.ReadOnly = true;
-            this.Column3.Width = 89;
+            this.Column3.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            this.Column3.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.Column3.Width = 70;
             // 
             // Column4
             // 
@@ -266,6 +275,17 @@
             this.Column4.HeaderText = "Hash";
             this.Column4.Name = "Column4";
             this.Column4.ReadOnly = true;
+            this.Column4.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            this.Column4.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            // 
+            // Column6
+            // 
+            this.Column6.HeaderText = "DownloadURL";
+            this.Column6.Name = "Column6";
+            this.Column6.ReadOnly = true;
+            this.Column6.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            this.Column6.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.Column6.Visible = false;
             // 
             // TestForm
             // 
@@ -306,6 +326,7 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn Column2;
         private System.Windows.Forms.DataGridViewTextBoxColumn Column3;
         private System.Windows.Forms.DataGridViewTextBoxColumn Column4;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Column6;
     }
 }
 
