@@ -29,8 +29,6 @@
         private void InitializeComponent()
         {
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.cmb_Extension = new System.Windows.Forms.ComboBox();
-            this.label5 = new System.Windows.Forms.Label();
             this.txt_Progress = new System.Windows.Forms.TextBox();
             this.btn_StartQuery = new System.Windows.Forms.Button();
             this.btn_Browse = new System.Windows.Forms.Button();
@@ -50,14 +48,19 @@
             this.Column3 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Column4 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Column6 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.btn_PEMbrowser = new System.Windows.Forms.Button();
+            this.txt_PEMpath = new System.Windows.Forms.TextBox();
+            this.label6 = new System.Windows.Forms.Label();
+            this.ofd_PEMpath = new System.Windows.Forms.OpenFileDialog();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgv_Releases)).BeginInit();
             this.SuspendLayout();
             // 
             // groupBox1
             // 
-            this.groupBox1.Controls.Add(this.cmb_Extension);
-            this.groupBox1.Controls.Add(this.label5);
+            this.groupBox1.Controls.Add(this.btn_PEMbrowser);
+            this.groupBox1.Controls.Add(this.txt_PEMpath);
+            this.groupBox1.Controls.Add(this.label6);
             this.groupBox1.Controls.Add(this.txt_Progress);
             this.groupBox1.Controls.Add(this.btn_StartQuery);
             this.groupBox1.Controls.Add(this.btn_Browse);
@@ -71,40 +74,16 @@
             this.groupBox1.Controls.Add(this.label1);
             this.groupBox1.Location = new System.Drawing.Point(12, 12);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(302, 221);
+            this.groupBox1.Size = new System.Drawing.Size(302, 239);
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "groupBox1";
-            // 
-            // cmb_Extension
-            // 
-            this.cmb_Extension.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.cmb_Extension.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cmb_Extension.FormattingEnabled = true;
-            this.cmb_Extension.Items.AddRange(new object[] {
-            ".exe",
-            ".zip",
-            ".gz"});
-            this.cmb_Extension.Location = new System.Drawing.Point(135, 120);
-            this.cmb_Extension.Name = "cmb_Extension";
-            this.cmb_Extension.Size = new System.Drawing.Size(161, 21);
-            this.cmb_Extension.TabIndex = 12;
-            // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(44, 124);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(85, 13);
-            this.label5.TabIndex = 11;
-            this.label5.Text = "Asset Extension:";
+            this.groupBox1.Text = "Mode: Public Repository";
             // 
             // txt_Progress
             // 
             this.txt_Progress.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.txt_Progress.Location = new System.Drawing.Point(6, 195);
+            this.txt_Progress.Location = new System.Drawing.Point(6, 213);
             this.txt_Progress.Name = "txt_Progress";
             this.txt_Progress.ReadOnly = true;
             this.txt_Progress.Size = new System.Drawing.Size(290, 20);
@@ -114,7 +93,7 @@
             // 
             this.btn_StartQuery.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.btn_StartQuery.Location = new System.Drawing.Point(6, 166);
+            this.btn_StartQuery.Location = new System.Drawing.Point(6, 184);
             this.btn_StartQuery.Name = "btn_StartQuery";
             this.btn_StartQuery.Size = new System.Drawing.Size(290, 23);
             this.btn_StartQuery.TabIndex = 9;
@@ -173,11 +152,11 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(12, 98);
+            this.label4.Location = new System.Drawing.Point(64, 97);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(117, 13);
+            this.label4.Size = new System.Drawing.Size(65, 13);
             this.label4.TabIndex = 3;
-            this.label4.Text = "Private Repository Key:";
+            this.label4.Text = "PAT Token:";
             // 
             // label3
             // 
@@ -226,7 +205,7 @@
             this.dgv_Releases.ReadOnly = true;
             this.dgv_Releases.RowHeadersVisible = false;
             this.dgv_Releases.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
-            this.dgv_Releases.Size = new System.Drawing.Size(504, 221);
+            this.dgv_Releases.Size = new System.Drawing.Size(504, 239);
             this.dgv_Releases.TabIndex = 1;
             this.dgv_Releases.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgv_Releases_CellContentClick);
             // 
@@ -287,11 +266,44 @@
             this.Column6.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
             this.Column6.Visible = false;
             // 
+            // btn_PEMbrowser
+            // 
+            this.btn_PEMbrowser.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btn_PEMbrowser.Location = new System.Drawing.Point(267, 120);
+            this.btn_PEMbrowser.Name = "btn_PEMbrowser";
+            this.btn_PEMbrowser.Size = new System.Drawing.Size(29, 20);
+            this.btn_PEMbrowser.TabIndex = 15;
+            this.btn_PEMbrowser.Text = "...";
+            this.btn_PEMbrowser.UseVisualStyleBackColor = true;
+            // 
+            // txt_PEMpath
+            // 
+            this.txt_PEMpath.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.txt_PEMpath.Location = new System.Drawing.Point(135, 120);
+            this.txt_PEMpath.Name = "txt_PEMpath";
+            this.txt_PEMpath.ReadOnly = true;
+            this.txt_PEMpath.Size = new System.Drawing.Size(126, 20);
+            this.txt_PEMpath.TabIndex = 14;
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(43, 124);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(86, 13);
+            this.label6.TabIndex = 13;
+            this.label6.Text = "PEM Token File:";
+            // 
+            // ofd_PEMpath
+            // 
+            this.ofd_PEMpath.Filter = "Github App Token|.pem";
+            // 
             // TestForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(836, 245);
+            this.ClientSize = new System.Drawing.Size(836, 263);
             this.Controls.Add(this.dgv_Releases);
             this.Controls.Add(this.groupBox1);
             this.Name = "TestForm";
@@ -319,14 +331,16 @@
         private System.Windows.Forms.Button btn_StartQuery;
         private System.Windows.Forms.FolderBrowserDialog fbd_downloadpath;
         private System.Windows.Forms.DataGridView dgv_Releases;
-        private System.Windows.Forms.ComboBox cmb_Extension;
-        private System.Windows.Forms.Label label5;
         private System.Windows.Forms.DataGridViewButtonColumn Column5;
         private System.Windows.Forms.DataGridViewTextBoxColumn Column1;
         private System.Windows.Forms.DataGridViewTextBoxColumn Column2;
         private System.Windows.Forms.DataGridViewTextBoxColumn Column3;
         private System.Windows.Forms.DataGridViewTextBoxColumn Column4;
         private System.Windows.Forms.DataGridViewTextBoxColumn Column6;
+        private System.Windows.Forms.Button btn_PEMbrowser;
+        private System.Windows.Forms.TextBox txt_PEMpath;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.OpenFileDialog ofd_PEMpath;
     }
 }
 
