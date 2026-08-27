@@ -88,7 +88,9 @@ namespace GithubDownloaderTest
             txt_TempInstallerPath.Enabled = toggle;
             btn_Browse.Enabled = toggle;
             txt_PrivateRepoKey.Enabled = toggle;
-            cmb_Extension.Enabled = toggle;
+            txt_PEMpath.Enabled = toggle;
+            txt_AppID.Enabled = toggle;
+            txt_InstallationID.Enabled = toggle;
             btn_StartQuery.Enabled = toggle;
         }
 
@@ -100,7 +102,7 @@ namespace GithubDownloaderTest
             updater.RepositoryName = txt_RepoName.Text.Trim();
             updater.TokenID = txt_PrivateRepoKey.Text.Trim();
             //updater.CheckForUpdates("application/x-msdownload", true);
-            updater.CheckForUpdates("*", true);
+            updater.CheckForUpdates("*", (ReleaseMode)cmb_ReleaseMode.SelectedItem, true);
         }
 
         private void dgv_Releases_CellContentClick(object sender, DataGridViewCellEventArgs e)
@@ -114,6 +116,12 @@ namespace GithubDownloaderTest
             {
                 txt_TempInstallerPath.Text = fbd_downloadpath.SelectedPath;
             }
+        }
+
+        private void cmb_ReleaseMode_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            grp_PATMode.Enabled = (ReleaseMode)cmb_ReleaseMode.SelectedItem == ReleaseMode.PRIVATE_PAT;
+            grp_PEMMode.Enabled = (ReleaseMode)cmb_ReleaseMode.SelectedItem == ReleaseMode.PRIVATE_PEM;
         }
     }
 }

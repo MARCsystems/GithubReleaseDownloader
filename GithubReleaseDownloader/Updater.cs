@@ -7,8 +7,11 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace GithubReleaseDownloader
 {
@@ -95,7 +98,7 @@ namespace GithubReleaseDownloader
         #endregion
 
         #region Query, Download and Install
-        public void CheckForUpdates(string mimetype, bool interruptIfFail = false)
+        public void CheckForUpdates(string mimetype, ReleaseMode releaseMode = ReleaseMode.PUBLIC, bool interruptIfFail = false)
         {
             versions.Clear();
             Thread updateThread = new Thread(() =>
@@ -107,10 +110,7 @@ namespace GithubReleaseDownloader
                     {
                         using (HttpClient client = new HttpClient())
                         {
-                            if (!string.IsNullOrEmpty(tokenID))
-                            {
-                                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokenID);
-                            }
+                            SetAuthorization(client, releaseMode: releaseMode);
                             client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0");
                             HttpResponseMessage response = client.GetAsync(GetReleaseUrl()).Result;
                             if (response.IsSuccessStatusCode)
@@ -202,54 +202,72 @@ namespace GithubReleaseDownloader
             updateThread.Start();
         }
 
-        public async void BeginDownload(string downloadUrl)
+        public async void BeginDownload(string downloadUrl, ReleaseMode releaseMode = ReleaseMode.PUBLIC)
         {
             using (HttpClient client = new HttpClient())
             {
                 try
                 {
-                    if (!string.IsNullOrEmpty(tokenID))
+                    if (releaseMode == ReleaseMode.PRIVATE_PAT)
                     {
                         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokenID);
                     }
-
-                    using (HttpResponseMessage response = await client.GetAsync(downloadUrl))
+                    else if (releaseMode == ReleaseMode.PRIVATE_PEM)
                     {
-                        if (response.IsSuccessStatusCode)
+
+                    }
+                        using (HttpResponseMessage response = await client.GetAsync(downloadUrl))
                         {
-                            long totalBytes = response.Content.Headers.ContentLength ?? -1;
-                            using (Stream contentStream = await response.Content.ReadAsStreamAsync(), fileStream = new FileStream(updateFilePath, FileMode.Create, FileAccess.Write, FileShare.None))
+                            if (response.IsSuccessStatusCode)
                             {
-                                byte[] buffer = new byte[65536];
-                                long totalRead = 0;
-                                int bytesRead;
-
-                                while ((bytesRead = await contentStream.ReadAsync(buffer, 0, buffer.Length)) > 0)
+                                long totalBytes = response.Content.Headers.ContentLength ?? -1;
+                                using (Stream contentStream = await response.Content.ReadAsStreamAsync(), fileStream = new FileStream(updateFilePath, FileMode.Create, FileAccess.Write, FileShare.None))
                                 {
-                                    await fileStream.WriteAsync(buffer, 0, bytesRead);
-                                    totalRead += bytesRead;
+                                    byte[] buffer = new byte[65536];
+                                    long totalRead = 0;
+                                    int bytesRead;
 
-                                    if (totalBytes > 0)
+                                    while ((bytesRead = await contentStream.ReadAsync(buffer, 0, buffer.Length)) > 0)
                                     {
-                                        double percent = Math.Round((double)totalRead / totalBytes * 100, 2);
-                                        ReportDownloadPercentage?.Invoke(UnitCollapser.CollapseBytes(totalRead), UnitCollapser.CollapseBytes(totalBytes), percent);
-                                        Thread.Sleep(new Random().Next(10, 25));
-                                    }
-                                    else
-                                    {
-                                        ReportDownloadPercentage?.Invoke(UnitCollapser.CollapseBytes(totalRead), "-1", -1);
+                                        await fileStream.WriteAsync(buffer, 0, bytesRead);
+                                        totalRead += bytesRead;
+
+                                        if (totalBytes > 0)
+                                        {
+                                            double percent = Math.Round((double)totalRead / totalBytes * 100, 2);
+                                            ReportDownloadPercentage?.Invoke(UnitCollapser.CollapseBytes(totalRead), UnitCollapser.CollapseBytes(totalBytes), percent);
+                                            Thread.Sleep(new Random().Next(10, 25));
+                                        }
+                                        else
+                                        {
+                                            ReportDownloadPercentage?.Invoke(UnitCollapser.CollapseBytes(totalRead), "-1", -1);
+                                        }
                                     }
                                 }
-                            }
 
-                            DownloadReport?.Invoke(false, $"Download Failed! [Status Code {response.StatusCode}]");
+                                DownloadReport?.Invoke(false, $"Download Failed! [Status Code {response.StatusCode}]");
+                            }
                         }
-                    }
                 }
                 catch (Exception err)
                 {
                     DownloadReport?.Invoke(false, $"Download failed due to the following error(s)\r\n\r\n{err.Message}\r\n\r\n{err.StackTrace}");
                 }
+            }
+        }
+
+        private void SetAuthorization(HttpClient client, string pemFilePath = "", ReleaseMode releaseMode = ReleaseMode.PUBLIC, string appID = "")
+        {
+            if (releaseMode == ReleaseMode.PRIVATE_PAT)
+            {
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokenID);
+            }
+            else if (releaseMode == ReleaseMode.PRIVATE_PEM)
+            {
+                RSA rsaToken = PemProcessor.PrepareRsaToken(tokenID);
+                string jwtValidation = PemProcessor.CreateJwt(rsaToken, appID);
+                string installToken = PemProcessor.GetInstallationToken(jwtValidation, "").GetAwaiter().GetResult();
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", installToken);
             }
         }
         #endregion
