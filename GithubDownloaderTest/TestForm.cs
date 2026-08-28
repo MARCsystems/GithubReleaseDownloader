@@ -100,7 +100,7 @@ namespace GithubDownloaderTest
             updater.CurrentAppVersion = new Version(0, 0, 0, 0);
             updater.RepositoryOwner = txt_RepoOwner.Text.Trim();
             updater.RepositoryName = txt_RepoName.Text.Trim();
-            updater.TokenID = txt_PrivateRepoKey.Text.Trim();
+            updater.PAT_Token = txt_PrivateRepoKey.Text.Trim();
             //updater.CheckForUpdates("application/x-msdownload", true);
             updater.CheckForUpdates("*", (ReleaseMode)cmb_ReleaseMode.SelectedItem, true);
         }

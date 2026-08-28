@@ -29,7 +29,12 @@ namespace GithubReleaseDownloader
         private string repositoryName = "";
         private Version currentAppVersion = new Version(0,0,0,0);
         private string updateFilePath = "";
-        private string tokenID = "";
+        private string pat_Token = "";
+        private string pem_Path = "";
+        private string pem_appId = "";
+        private string pem_installationId = "";
+        private string mimeType = "*";
+        private ReleaseMode releaseMode = ReleaseMode.PUBLIC;
 
         private List<VersionEntry> versions = new List<VersionEntry>();
         #endregion
@@ -54,22 +59,40 @@ namespace GithubReleaseDownloader
             get { return repositoryName; }
         }
 
+        public Version CurrentAppVersion
+        {
+            set { currentAppVersion = value; }
+            get { return currentAppVersion; }
+        }
+
         public string UpdateFileSavePath
         {
             set { updateFilePath = value; }
             get { return updateFilePath; }
         }
 
-        public string TokenID
+        public string PAT_Token
         {
-            set { tokenID = value; }
-            get { return tokenID; }
+            set { pat_Token = value; }
+            get { return pat_Token; }
         }
 
-        public Version CurrentAppVersion
+        public string PEM_FilePath
         {
-            set { currentAppVersion = value; }
-            get { return currentAppVersion; }
+            set { pem_Path = value; }
+            get { return pem_Path; }
+        }
+
+        public string PEM_AppId
+        {
+            set { pem_appId = value; }
+            get { return pem_appId; }
+        }
+
+        public string PEM_InstallationId
+        {
+            set { pem_installationId = value; }
+            get { return pem_installationId; }
         }
 
         public VersionEntry[] FetchedVersions
@@ -98,7 +121,7 @@ namespace GithubReleaseDownloader
         #endregion
 
         #region Query, Download and Install
-        public void CheckForUpdates(string mimetype, ReleaseMode releaseMode = ReleaseMode.PUBLIC, bool interruptIfFail = false)
+        public void CheckForUpdates(bool interruptIfFail = false)
         {
             versions.Clear();
             Thread updateThread = new Thread(() =>
@@ -136,7 +159,7 @@ namespace GithubReleaseDownloader
                                         VersionEntry versionEntry = VersionEntry.StoreEntry(release["name"].ToString(), release["tag_name"].ToString(), release["body"].ToString(), publishTime, (bool)release["prerelease"]);
                                         foreach (var asset in release["assets"])
                                         {
-                                            if (asset["content_type"].ToString() == mimetype || mimetype == "*")
+                                            if (asset["content_type"].ToString().Equals(mimeType, StringComparison.OrdinalIgnoreCase) || mimeType.Equals("*", StringComparison.OrdinalIgnoreCase))
                                             {
                                                 versionEntry.RegisterAsset(VersionEntry.VersionAsset.RegisterAssets(
                                                     asset["name"].ToString(),
@@ -210,7 +233,7 @@ namespace GithubReleaseDownloader
                 {
                     if (releaseMode == ReleaseMode.PRIVATE_PAT)
                     {
-                        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokenID);
+                        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", pat_Token);
                     }
                     else if (releaseMode == ReleaseMode.PRIVATE_PEM)
                     {
@@ -260,11 +283,11 @@ namespace GithubReleaseDownloader
         {
             if (releaseMode == ReleaseMode.PRIVATE_PAT)
             {
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokenID);
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", pat_Token);
             }
             else if (releaseMode == ReleaseMode.PRIVATE_PEM)
             {
-                RSA rsaToken = PemProcessor.PrepareRsaToken(tokenID);
+                RSA rsaToken = PemProcessor.PrepareRsaToken(pat_Token);
                 string jwtValidation = PemProcessor.CreateJwt(rsaToken, appID);
                 string installToken = PemProcessor.GetInstallationToken(jwtValidation, "").GetAwaiter().GetResult();
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", installToken);
