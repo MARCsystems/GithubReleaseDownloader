@@ -2,12 +2,34 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <NuGetAuditMode>direct</NuGetAuditMode>
+    <Title>Github Release Downloader</Title>
+    <Version>1.0.0.0</Version>
+    <Authors>SolarPH</Authors>
+    <Company>MARCsystems</Company>
+    <Product>Github Release Downloader</Product>
+    <Copyright>Copyright (c) 2026 SolarPH</Copyright>
+    <Description>A library that allows fetching and downloading releases from Github Repositories. Allows downloading in public and private repositories via PAT or Github Apps.</Description>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
     <PackageReference Include="System.Formats.Asn1" Version="10.0.11" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.22.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="LICENSE.txt">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Update="README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>

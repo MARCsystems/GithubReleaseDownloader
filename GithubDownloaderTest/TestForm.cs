@@ -18,6 +18,17 @@ namespace GithubDownloaderTest
         internal TestForm()
         {
             InitializeComponent();
+
+            Load += (a, b) =>
+            {
+                cmb_ReleaseMode.Items.Clear();
+                foreach(ReleaseMode mode in Enum.GetValues(typeof(ReleaseMode)))
+                {
+                    cmb_ReleaseMode.Items.Add(mode);
+                }
+                cmb_ReleaseMode.SelectedIndex = 0;
+            };
+
             updater = new Updater();
             updater.CheckUpdateReport += (val) =>
             {
@@ -101,8 +112,12 @@ namespace GithubDownloaderTest
             updater.RepositoryOwner = txt_RepoOwner.Text.Trim();
             updater.RepositoryName = txt_RepoName.Text.Trim();
             updater.PAT_Token = txt_PrivateRepoKey.Text.Trim();
-            //updater.CheckForUpdates("application/x-msdownload", true);
-            updater.CheckForUpdates("*", (ReleaseMode)cmb_ReleaseMode.SelectedItem, true);
+            updater.PEM_FilePath = txt_PEMpath.Text.Trim();
+            updater.PEM_AppId = txt_AppID.Text.Trim();
+            updater.PEM_InstallationId = txt_InstallationID.Text.Trim();
+            updater.MimeType = "*";
+            updater.RepoReleaseMode = (ReleaseMode)cmb_ReleaseMode.SelectedItem;
+            updater.CheckForUpdates(true);
         }
 
         private void dgv_Releases_CellContentClick(object sender, DataGridViewCellEventArgs e)
@@ -122,6 +137,14 @@ namespace GithubDownloaderTest
         {
             grp_PATMode.Enabled = (ReleaseMode)cmb_ReleaseMode.SelectedItem == ReleaseMode.PRIVATE_PAT;
             grp_PEMMode.Enabled = (ReleaseMode)cmb_ReleaseMode.SelectedItem == ReleaseMode.PRIVATE_PEM;
+        }
+
+        private void btn_PEMbrowser_Click(object sender, EventArgs e)
+        {
+            if (ofd_PEMpath.ShowDialog() == DialogResult.OK)
+            {
+                txt_PEMpath.Text = ofd_PEMpath.FileName;
+            }
         }
     }
 }

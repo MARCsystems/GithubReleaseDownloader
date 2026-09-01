@@ -34,6 +34,7 @@ namespace GithubReleaseDownloader
         private string pem_appId = "";
         private string pem_installationId = "";
         private string mimeType = "*";
+        private string applicationName = "";
         private ReleaseMode releaseMode = ReleaseMode.PUBLIC;
 
         private List<VersionEntry> versions = new List<VersionEntry>();
@@ -95,6 +96,24 @@ namespace GithubReleaseDownloader
             get { return pem_installationId; }
         }
 
+        public string MimeType
+        {
+            set { mimeType = value; }
+            get { return mimeType; }
+        }
+
+        public ReleaseMode RepoReleaseMode
+        {
+            set { releaseMode = value; }
+            get { return releaseMode; }
+        }
+
+        public string ApplicationName
+        {
+            set { applicationName = value; }
+            get { return applicationName.Trim().Length == 0 ? "My Github App Downloader" : applicationName; }
+        }
+
         public VersionEntry[] FetchedVersions
         {
             get
@@ -133,7 +152,7 @@ namespace GithubReleaseDownloader
                     {
                         using (HttpClient client = new HttpClient())
                         {
-                            SetAuthorization(client, releaseMode: releaseMode);
+                            SetAuthorization(client, PEM_FilePath, RepoReleaseMode, PEM_AppId, PEM_InstallationId);
                             client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0");
                             HttpResponseMessage response = client.GetAsync(GetReleaseUrl()).Result;
                             if (response.IsSuccessStatusCode)
@@ -279,7 +298,7 @@ namespace GithubReleaseDownloader
             }
         }
 
-        private void SetAuthorization(HttpClient client, string pemFilePath = "", ReleaseMode releaseMode = ReleaseMode.PUBLIC, string appID = "")
+        private void SetAuthorization(HttpClient client, string pemFilePath, ReleaseMode releaseMode, string appID, string installationID)
         {
             if (releaseMode == ReleaseMode.PRIVATE_PAT)
             {
@@ -287,9 +306,9 @@ namespace GithubReleaseDownloader
             }
             else if (releaseMode == ReleaseMode.PRIVATE_PEM)
             {
-                RSA rsaToken = PemProcessor.PrepareRsaToken(pat_Token);
+                RSA rsaToken = PemProcessor.PrepareRsaToken(pemFilePath);
                 string jwtValidation = PemProcessor.CreateJwt(rsaToken, appID);
-                string installToken = PemProcessor.GetInstallationToken(jwtValidation, "").GetAwaiter().GetResult();
+                string installToken = PemProcessor.GetInstallationToken(ApplicationName, jwtValidation, installationID).GetAwaiter().GetResult();
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", installToken);
             }
         }

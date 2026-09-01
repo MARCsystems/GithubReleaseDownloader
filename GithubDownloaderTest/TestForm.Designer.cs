@@ -151,6 +151,7 @@
             this.btn_PEMbrowser.TabIndex = 15;
             this.btn_PEMbrowser.Text = "...";
             this.btn_PEMbrowser.UseVisualStyleBackColor = true;
+            this.btn_PEMbrowser.Click += new System.EventHandler(this.btn_PEMbrowser_Click);
             // 
             // label6
             // 
@@ -390,7 +391,7 @@
             // 
             // ofd_PEMpath
             // 
-            this.ofd_PEMpath.Filter = "Github App Token|.pem";
+            this.ofd_PEMpath.Filter = "Github App Token|*.pem";
             // 
             // TestForm
             // 
