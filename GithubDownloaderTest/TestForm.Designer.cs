@@ -40,7 +40,7 @@
             this.label5 = new System.Windows.Forms.Label();
             this.cmb_ReleaseMode = new System.Windows.Forms.ComboBox();
             this.grp_PATMode = new System.Windows.Forms.GroupBox();
-            this.txt_PrivateRepoKey = new System.Windows.Forms.TextBox();
+            this.txt_PATkey = new System.Windows.Forms.TextBox();
             this.label4 = new System.Windows.Forms.Label();
             this.txt_Progress = new System.Windows.Forms.TextBox();
             this.btn_StartQuery = new System.Windows.Forms.Button();
@@ -193,7 +193,7 @@
             // 
             // grp_PATMode
             // 
-            this.grp_PATMode.Controls.Add(this.txt_PrivateRepoKey);
+            this.grp_PATMode.Controls.Add(this.txt_PATkey);
             this.grp_PATMode.Controls.Add(this.label4);
             this.grp_PATMode.Location = new System.Drawing.Point(9, 121);
             this.grp_PATMode.Name = "grp_PATMode";
@@ -202,14 +202,14 @@
             this.grp_PATMode.TabStop = false;
             this.grp_PATMode.Text = "PAT Mode";
             // 
-            // txt_PrivateRepoKey
+            // txt_PATkey
             // 
-            this.txt_PrivateRepoKey.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.txt_PATkey.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.txt_PrivateRepoKey.Location = new System.Drawing.Point(120, 19);
-            this.txt_PrivateRepoKey.Name = "txt_PrivateRepoKey";
-            this.txt_PrivateRepoKey.Size = new System.Drawing.Size(161, 20);
-            this.txt_PrivateRepoKey.TabIndex = 7;
+            this.txt_PATkey.Location = new System.Drawing.Point(120, 19);
+            this.txt_PATkey.Name = "txt_PATkey";
+            this.txt_PATkey.Size = new System.Drawing.Size(161, 20);
+            this.txt_PATkey.TabIndex = 7;
             // 
             // label4
             // 
@@ -420,7 +420,7 @@
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.TextBox txt_PrivateRepoKey;
+        private System.Windows.Forms.TextBox txt_PATkey;
         private System.Windows.Forms.TextBox txt_TempInstallerPath;
         private System.Windows.Forms.TextBox txt_RepoName;
         private System.Windows.Forms.TextBox txt_RepoOwner;

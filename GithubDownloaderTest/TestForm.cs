@@ -14,6 +14,7 @@ namespace GithubDownloaderTest
     internal partial class TestForm : Form
     {
         private Updater updater;
+        private List<VersionEntry.VersionAsset> versions = new List<VersionEntry.VersionAsset>();
 
         internal TestForm()
         {
@@ -62,20 +63,26 @@ namespace GithubDownloaderTest
                     txt_Progress.Text = $"[{sizeCurrent}/{sizeTotal}] {percVal.ToString("0.00")}%";
                 }
             };
-            updater.CheckUpdateReportReady += () =>
+            updater.CheckUpdateReportReady += (isFetched) =>
             {
                 if (InvokeRequired)
                 {
                     Invoke((MethodInvoker)delegate ()
                     {
-                        toggleInteractables(true);
+                        toggleInteractables(!isFetched);
                         populateUpdateTable();
+
+                        btn_StartQuery.Text = isFetched ? "Unlock" : "Start Query";
+                        btn_StartQuery.Enabled = true;
                     });
                 }
                 else
                 {
-                    toggleInteractables(true);
+                    toggleInteractables(!isFetched);
                     populateUpdateTable();
+
+                    btn_StartQuery.Text = isFetched ? "Unlock" : "Start Query";
+                    btn_StartQuery.Enabled = true;
                 }
             };
         }
@@ -83,10 +90,12 @@ namespace GithubDownloaderTest
         private void populateUpdateTable()
         {
             dgv_Releases.Rows.Clear();
+            versions.Clear();
             foreach (VersionEntry entry in updater.FetchedVersions)
             {
                 foreach(VersionEntry.VersionAsset asset in entry.AssetsInfo)
                 {
+                    versions.Add(asset);
                     dgv_Releases.Rows.Add("⬇", entry.VersionSequence, entry.VersionName, asset.AssetName, asset.AssetHashType);
                 }
             }
@@ -98,7 +107,7 @@ namespace GithubDownloaderTest
             txt_RepoName.Enabled = toggle;
             txt_TempInstallerPath.Enabled = toggle;
             btn_Browse.Enabled = toggle;
-            txt_PrivateRepoKey.Enabled = toggle;
+            txt_PATkey.Enabled = toggle;
             txt_PEMpath.Enabled = toggle;
             txt_AppID.Enabled = toggle;
             txt_InstallationID.Enabled = toggle;
@@ -111,7 +120,7 @@ namespace GithubDownloaderTest
             updater.CurrentAppVersion = new Version(0, 0, 0, 0);
             updater.RepositoryOwner = txt_RepoOwner.Text.Trim();
             updater.RepositoryName = txt_RepoName.Text.Trim();
-            updater.PAT_Token = txt_PrivateRepoKey.Text.Trim();
+            updater.PAT_Token = txt_PATkey.Text.Trim();
             updater.PEM_FilePath = txt_PEMpath.Text.Trim();
             updater.PEM_AppId = txt_AppID.Text.Trim();
             updater.PEM_InstallationId = txt_InstallationID.Text.Trim();
@@ -122,7 +131,12 @@ namespace GithubDownloaderTest
 
         private void dgv_Releases_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
-            
+            int row = dgv_Releases.CurrentCell.RowIndex, col = dgv_Releases.CurrentCell.ColumnIndex;
+
+            if (col == 0)
+            {
+
+            }
         }
 
         private void btn_Browse_Click(object sender, EventArgs e)

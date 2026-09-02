@@ -19,7 +19,7 @@ namespace GithubReleaseDownloader
     {
         #region Events
         public event Action<string> CheckUpdateReport;
-        public event Action CheckUpdateReportReady;
+        public event Action<bool> CheckUpdateReportReady;
         public event Action<string, string, double> ReportDownloadPercentage;
         public event Action<bool, string> DownloadReport;
         #endregion
@@ -203,14 +203,14 @@ namespace GithubReleaseDownloader
                                     {
                                         CheckUpdateReport?.Invoke("No updates available.");
                                     }
-                                    CheckUpdateReportReady?.Invoke();
+                                    CheckUpdateReportReady?.Invoke(versions.Count > 0);
                                 }
                                 else
                                 {
                                     CheckUpdateReport?.Invoke($"Cannot get to Github Release Server! Redirect Detected at [{response.RequestMessage.RequestUri.ToString()}] [Status Code {response.StatusCode}]");
                                     if (interruptIfFail)
                                     {
-                                        CheckUpdateReportReady?.Invoke();
+                                        CheckUpdateReportReady?.Invoke(false);
                                         break;
                                     }
                                 }
@@ -220,7 +220,7 @@ namespace GithubReleaseDownloader
                                 CheckUpdateReport?.Invoke($"Failed to fetch updates! {response.ToString()} [Status Code {response.StatusCode}]");
                                 if (interruptIfFail)
                                 {
-                                    CheckUpdateReportReady?.Invoke();
+                                    CheckUpdateReportReady?.Invoke(false);
                                     break;
                                 }
                             }
@@ -231,7 +231,7 @@ namespace GithubReleaseDownloader
                         CheckUpdateReport?.Invoke($"Failed to fetch version releases. The following error(s) has occured! [{err.Message}]");
                         if (interruptIfFail)
                         {
-                            CheckUpdateReportReady?.Invoke();
+                            CheckUpdateReportReady?.Invoke(false);
                             break;
                         }
                     }
