@@ -22,6 +22,7 @@ namespace GithubReleaseDownloader
         public event Action<bool> CheckUpdateReportReady;
         public event Action<string, string, double> ReportDownloadPercentage;
         public event Action<bool, string> DownloadReport;
+        public event Action DownloadEventStopped;
         #endregion
 
         #region Private Variables
@@ -244,34 +245,30 @@ namespace GithubReleaseDownloader
             updateThread.Start();
         }
 
-        public async void BeginDownload(string downloadUrl, ReleaseMode releaseMode = ReleaseMode.PUBLIC)
+        public async void BeginDownload(string downloadUrl)
         {
-            using (HttpClient client = new HttpClient())
+            Thread downloadThread = new Thread(() =>
             {
-                try
+                using (HttpClient client = new HttpClient())
                 {
-                    if (releaseMode == ReleaseMode.PRIVATE_PAT)
+                    try
                     {
-                        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", pat_Token);
-                    }
-                    else if (releaseMode == ReleaseMode.PRIVATE_PEM)
-                    {
+                        SetAuthorization(client, PEM_FilePath, RepoReleaseMode, PEM_AppId, PEM_InstallationId);
 
-                    }
-                        using (HttpResponseMessage response = await client.GetAsync(downloadUrl))
+                        using (HttpResponseMessage response = client.GetAsync(downloadUrl).Result)
                         {
                             if (response.IsSuccessStatusCode)
                             {
                                 long totalBytes = response.Content.Headers.ContentLength ?? -1;
-                                using (Stream contentStream = await response.Content.ReadAsStreamAsync(), fileStream = new FileStream(updateFilePath, FileMode.Create, FileAccess.Write, FileShare.None))
+                                using (Stream contentStream = response.Content.ReadAsStreamAsync().Result, fileStream = new FileStream(updateFilePath, FileMode.Create, FileAccess.Write, FileShare.None))
                                 {
                                     byte[] buffer = new byte[65536];
                                     long totalRead = 0;
                                     int bytesRead;
 
-                                    while ((bytesRead = await contentStream.ReadAsync(buffer, 0, buffer.Length)) > 0)
+                                    while ((bytesRead = contentStream.ReadAsync(buffer, 0, buffer.Length).Result) > 0)
                                     {
-                                        await fileStream.WriteAsync(buffer, 0, bytesRead);
+                                        fileStream.WriteAsync(buffer, 0, bytesRead);
                                         totalRead += bytesRead;
 
                                         if (totalBytes > 0)
@@ -287,15 +284,26 @@ namespace GithubReleaseDownloader
                                     }
                                 }
 
-                                DownloadReport?.Invoke(false, $"Download Failed! [Status Code {response.StatusCode}]");
+                                DownloadReport?.Invoke(false, $"Download Failed! [Status Code {response.ToString()}]");
+                                DownloadEventStopped?.Invoke();
+                            }
+                            else
+                            {
+                                DownloadReport?.Invoke(false, $"Download failed due to the following error(s) [{response.ToString()}] {response.ReasonPhrase}");
+                                DownloadEventStopped?.Invoke();
                             }
                         }
+                    }
+                    catch (Exception err)
+                    {
+                        DownloadReport?.Invoke(false, $"Download failed due to the following error(s)\r\n\r\n{err.Message}\r\n\r\n{err.StackTrace}");
+                        DownloadEventStopped?.Invoke();
+                    }
                 }
-                catch (Exception err)
-                {
-                    DownloadReport?.Invoke(false, $"Download failed due to the following error(s)\r\n\r\n{err.Message}\r\n\r\n{err.StackTrace}");
-                }
-            }
+            });
+            downloadThread.Name = $"Update Checker";
+            downloadThread.IsBackground = true;
+            downloadThread.Start();
         }
 
         private void SetAuthorization(HttpClient client, string pemFilePath, ReleaseMode releaseMode, string appID, string installationID)

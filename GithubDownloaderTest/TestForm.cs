@@ -49,6 +49,23 @@ namespace GithubDownloaderTest
             {
                 Console.WriteLine(downloadSuccess ? $"Success - Downloaded {val}!" : $"Failed downloading {val}!");
             };
+            updater.DownloadEventStopped += () =>
+            {
+                if (InvokeRequired)
+                {
+                    Invoke((MethodInvoker)delegate ()
+                    {
+                        toggleInteractables(versions.Count == 0);
+                    });
+                }
+                else
+                {
+                    Invoke((MethodInvoker)delegate ()
+                    {
+                        toggleInteractables(versions.Count == 0);
+                    });
+                }
+            };
             updater.ReportDownloadPercentage += (sizeCurrent, sizeTotal, percVal) =>
             {
                 if (InvokeRequired)
@@ -106,6 +123,7 @@ namespace GithubDownloaderTest
             txt_RepoOwner.Enabled = toggle;
             txt_RepoName.Enabled = toggle;
             txt_TempInstallerPath.Enabled = toggle;
+            cmb_ReleaseMode.Enabled = toggle;
             btn_Browse.Enabled = toggle;
             txt_PATkey.Enabled = toggle;
             txt_PEMpath.Enabled = toggle;
@@ -135,7 +153,8 @@ namespace GithubDownloaderTest
 
             if (col == 0)
             {
-
+                toggleInteractables(false);
+                updater.BeginDownload(versions[row].AssetDownloadUrl);
             }
         }
 
