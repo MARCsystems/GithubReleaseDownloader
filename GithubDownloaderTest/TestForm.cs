@@ -15,6 +15,7 @@ namespace GithubDownloaderTest
     {
         private Updater updater;
         private List<VersionEntry.VersionAsset> versions = new List<VersionEntry.VersionAsset>();
+        private bool isLocked = false;
 
         internal TestForm()
         {
@@ -47,7 +48,22 @@ namespace GithubDownloaderTest
             };
             updater.DownloadReport += (downloadSuccess, val) =>
             {
-                Console.WriteLine(downloadSuccess ? $"Success - Downloaded {val}!" : $"Failed downloading {val}!");
+                if (InvokeRequired)
+                {
+                    Invoke((MethodInvoker)delegate ()
+                    {
+                        toggleInteractables(versions.Count == 0);
+                        txt_Progress.Text = downloadSuccess ? $"Success - Downloaded {val}!" : $"Failed downloading {val}!";
+                    });
+                }
+                else
+                {
+                    Invoke((MethodInvoker)delegate ()
+                    {
+                        toggleInteractables(versions.Count == 0);
+                        txt_Progress.Text = downloadSuccess ? $"Success - Downloaded {val}!" : $"Failed downloading {val}!";
+                    });
+                }
             };
             updater.DownloadEventStopped += () =>
             {
@@ -56,6 +72,11 @@ namespace GithubDownloaderTest
                     Invoke((MethodInvoker)delegate ()
                     {
                         toggleInteractables(versions.Count == 0);
+
+                        btn_StartQuery.Text = "Unlock";
+                        btn_StartQuery.Enabled = true;
+
+                        dgv_Releases.Enabled = true;
                     });
                 }
                 else
@@ -63,6 +84,11 @@ namespace GithubDownloaderTest
                     Invoke((MethodInvoker)delegate ()
                     {
                         toggleInteractables(versions.Count == 0);
+
+                        btn_StartQuery.Text = "Unlock";
+                        btn_StartQuery.Enabled = true;
+
+                        dgv_Releases.Enabled = true;
                     });
                 }
             };
@@ -91,6 +117,10 @@ namespace GithubDownloaderTest
 
                         btn_StartQuery.Text = isFetched ? "Unlock" : "Start Query";
                         btn_StartQuery.Enabled = true;
+
+                        dgv_Releases.Enabled = true;
+
+                        isLocked = isFetched;
                     });
                 }
                 else
@@ -100,6 +130,10 @@ namespace GithubDownloaderTest
 
                     btn_StartQuery.Text = isFetched ? "Unlock" : "Start Query";
                     btn_StartQuery.Enabled = true;
+
+                    dgv_Releases.Enabled = true;
+
+                    isLocked = isFetched;
                 }
             };
         }
@@ -130,14 +164,26 @@ namespace GithubDownloaderTest
             txt_AppID.Enabled = toggle;
             txt_InstallationID.Enabled = toggle;
             btn_StartQuery.Enabled = toggle;
+            dgv_Releases.Enabled = toggle;
         }
 
         private void btn_StartQuery_Click(object sender, EventArgs e)
         {
+            if (isLocked)
+            {
+                isLocked = false;
+                versions.Clear();
+                dgv_Releases.Rows.Clear();
+                btn_StartQuery.Text = "Start Query";
+                toggleInteractables(true);
+                return;
+            }
+
             toggleInteractables(false);
             updater.CurrentAppVersion = new Version(0, 0, 0, 0);
             updater.RepositoryOwner = txt_RepoOwner.Text.Trim();
             updater.RepositoryName = txt_RepoName.Text.Trim();
+            updater.UpdateFileSavePath = txt_TempInstallerPath.Text.Trim();
             updater.PAT_Token = txt_PATkey.Text.Trim();
             updater.PEM_FilePath = txt_PEMpath.Text.Trim();
             updater.PEM_AppId = txt_AppID.Text.Trim();
@@ -154,7 +200,8 @@ namespace GithubDownloaderTest
             if (col == 0)
             {
                 toggleInteractables(false);
-                updater.BeginDownload(versions[row].AssetDownloadUrl);
+                txt_Progress.Text = "Downloading...";
+                updater.BeginDownload(versions[row].AssetDownloadUrl, versions[row].AssetName);
             }
         }
 

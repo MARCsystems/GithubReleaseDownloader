@@ -112,8 +112,8 @@ namespace GithubReleaseDownloader
             DateTimeOffset now = DateTimeOffset.UtcNow;
             JwtPayload payload = new JwtPayload
             {
-                { "iat", now.ToUnixTimeSeconds() },
-                { "exp", now.AddMinutes(10).ToUnixTimeSeconds() },   // 10 minutes later
+                { "iat", now.AddSeconds(-1).ToUnixTimeSeconds() }, // 1 Minute behind
+                { "exp", now.AddMinutes(9).ToUnixTimeSeconds() },   // 9 minutes later
                 { "iss", appId }
             };
 
@@ -125,20 +125,27 @@ namespace GithubReleaseDownloader
 
         internal static async Task<string> GetInstallationToken(string applicationName, string jwt, string installationId)
         {
-            using (var client = new HttpClient())
+            using (HttpClientHandler handler = new HttpClientHandler())
             {
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.github+json"));
-                client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0");
-
-                var url = $"https://api.github.com/app/installations/{installationId}/access_tokens";
-                var response = await client.PostAsync(url, null);
-                response.EnsureSuccessStatusCode();
-
-                var json = await response.Content.ReadAsStringAsync();
-                using (var doc = JsonDocument.Parse(json))
+                using (HttpClient client = new HttpClient(handler))
                 {
-                    return doc.RootElement.GetProperty("token").GetString();
+                    client.Timeout = TimeSpan.FromSeconds(10);
+
+                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
+                    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.github+json"));
+                    client.DefaultRequestHeaders.UserAgent.ParseAdd("MSYS-GRD-1-0-0-0/PEMProcessor");
+
+                    var url = $"https://api.github.com/app/installations/{installationId}/access_tokens";
+                    var response = await client.PostAsync(url, null);
+                    var body = await response.Content.ReadAsStringAsync();
+
+                    response.EnsureSuccessStatusCode();
+
+                    var json = await response.Content.ReadAsStringAsync();
+                    using (var doc = JsonDocument.Parse(json))
+                    {
+                        return doc.RootElement.GetProperty("token").GetString();
+                    }
                 }
             }
         }
