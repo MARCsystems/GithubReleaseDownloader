@@ -32,98 +32,50 @@ namespace GithubDownloaderTest
             };
 
             updater = new Updater();
-            updater.CheckUpdateReport += (val) =>
+            updater.GlobalMessage += (val) =>
             {
-                if (InvokeRequired)
-                {
-                    Invoke((MethodInvoker)delegate ()
-                    {
-                        txt_Progress.Text = val;
-                    });
-                }
-                else
+                Invoke((MethodInvoker)delegate ()
                 {
                     txt_Progress.Text = val;
-                }
+                });
+            };
+            updater.CheckUpdateReport += (val) =>
+            {
+                Invoke((MethodInvoker)delegate ()
+                {
+                    txt_Progress.Text = val;
+                });
             };
             updater.DownloadReport += (downloadSuccess, val) =>
             {
-                if (InvokeRequired)
+                Invoke((MethodInvoker)delegate ()
                 {
-                    Invoke((MethodInvoker)delegate ()
-                    {
-                        toggleInteractables(versions.Count == 0);
-                        txt_Progress.Text = downloadSuccess ? $"Success - Downloaded {val}!" : $"Failed downloading {val}!";
-                    });
-                }
-                else
-                {
-                    Invoke((MethodInvoker)delegate ()
-                    {
-                        toggleInteractables(versions.Count == 0);
-                        txt_Progress.Text = downloadSuccess ? $"Success - Downloaded {val}!" : $"Failed downloading {val}!";
-                    });
-                }
+                    toggleInteractables(versions.Count == 0);
+                    txt_Progress.Text = downloadSuccess ? $"Success - Downloaded {val}!" : $"Failed downloading {val}!";
+                });
             };
             updater.DownloadEventStopped += () =>
             {
-                if (InvokeRequired)
+                Invoke((MethodInvoker)delegate ()
                 {
-                    Invoke((MethodInvoker)delegate ()
-                    {
-                        toggleInteractables(versions.Count == 0);
+                    toggleInteractables(versions.Count == 0);
 
-                        btn_StartQuery.Text = "Unlock";
-                        btn_StartQuery.Enabled = true;
+                    btn_StartQuery.Text = "Unlock";
+                    btn_StartQuery.Enabled = true;
 
-                        dgv_Releases.Enabled = true;
-                    });
-                }
-                else
-                {
-                    Invoke((MethodInvoker)delegate ()
-                    {
-                        toggleInteractables(versions.Count == 0);
-
-                        btn_StartQuery.Text = "Unlock";
-                        btn_StartQuery.Enabled = true;
-
-                        dgv_Releases.Enabled = true;
-                    });
-                }
+                    dgv_Releases.Enabled = true;
+                });
             };
             updater.ReportDownloadPercentage += (sizeCurrent, sizeTotal, percVal) =>
             {
-                if (InvokeRequired)
-                {
-                    Invoke((MethodInvoker)delegate ()
-                    {
-                        txt_Progress.Text = $"[{sizeCurrent}/{sizeTotal}] {percVal.ToString("0.00")}%";
-                    });
-                }
-                else
+                Invoke((MethodInvoker)delegate ()
                 {
                     txt_Progress.Text = $"[{sizeCurrent}/{sizeTotal}] {percVal.ToString("0.00")}%";
-                }
+                });
             };
             updater.CheckUpdateReportReady += (isFetched) =>
             {
-                if (InvokeRequired)
-                {
-                    Invoke((MethodInvoker)delegate ()
-                    {
-                        toggleInteractables(!isFetched);
-                        populateUpdateTable();
-
-                        btn_StartQuery.Text = isFetched ? "Unlock" : "Start Query";
-                        btn_StartQuery.Enabled = true;
-
-                        dgv_Releases.Enabled = true;
-
-                        isLocked = isFetched;
-                    });
-                }
-                else
+                Invoke((MethodInvoker)delegate ()
                 {
                     toggleInteractables(!isFetched);
                     populateUpdateTable();
@@ -134,7 +86,7 @@ namespace GithubDownloaderTest
                     dgv_Releases.Enabled = true;
 
                     isLocked = isFetched;
-                }
+                });
             };
         }
 
@@ -147,7 +99,7 @@ namespace GithubDownloaderTest
                 foreach(VersionEntry.VersionAsset asset in entry.AssetsInfo)
                 {
                     versions.Add(asset);
-                    dgv_Releases.Rows.Add("⬇", entry.VersionSequence, entry.VersionName, asset.AssetName, asset.AssetHashType);
+                    dgv_Releases.Rows.Add("⬇", entry.VersionName, entry.VersionSequence, entry.PublishDate, (entry.IsPreRelease ? "Pre-Release" : "Stable"), asset.AssetName, asset.ContentType, $"{asset.AssetHashType}: {asset.AssetHashValue}".ToUpper());
                 }
             }
         }
@@ -165,6 +117,7 @@ namespace GithubDownloaderTest
             txt_InstallationID.Enabled = toggle;
             btn_StartQuery.Enabled = toggle;
             dgv_Releases.Enabled = toggle;
+            txt_ContentType.Enabled = toggle;
         }
 
         private void btn_StartQuery_Click(object sender, EventArgs e)
@@ -180,15 +133,14 @@ namespace GithubDownloaderTest
             }
 
             toggleInteractables(false);
+            updater.DownloadSizeLimit = 2;
             updater.CurrentAppVersion = new Version(0, 0, 0, 0);
             updater.RepositoryOwner = txt_RepoOwner.Text.Trim();
             updater.RepositoryName = txt_RepoName.Text.Trim();
             updater.UpdateFileSavePath = txt_TempInstallerPath.Text.Trim();
             updater.PAT_Token = txt_PATkey.Text.Trim();
-            updater.PEM_FilePath = txt_PEMpath.Text.Trim();
-            updater.PEM_AppId = txt_AppID.Text.Trim();
-            updater.PEM_InstallationId = txt_InstallationID.Text.Trim();
-            updater.MimeType = "*";
+            updater.RegisterPEM_FromFile(txt_PEMpath.Text.Trim(), txt_AppID.Text.Trim(), txt_InstallationID.Text.Trim());
+            updater.MimeType = txt_ContentType.Text.Trim().Length == 0 ? "*" : txt_ContentType.Text.Trim();
             updater.RepoReleaseMode = (ReleaseMode)cmb_ReleaseMode.SelectedItem;
             updater.CheckForUpdates(true);
         }

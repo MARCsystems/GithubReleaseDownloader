@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Formats.Asn1;
 using System.IdentityModel.Tokens.Jwt;
-using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Numerics;
@@ -16,9 +15,9 @@ namespace GithubReleaseDownloader
 {
     internal class PemProcessor
     {
-        internal static RSA PrepareRsaToken(string pemPath)
+        internal static RSA PrepareRsaToken(string pem_Data)
         {
-            string pem = File.ReadAllText(pemPath);
+            string pem = pem_Data;
             short pkcs_staging = 0;
             if (pem.Contains("-----BEGIN RSA PRIVATE KEY-----"))
             {

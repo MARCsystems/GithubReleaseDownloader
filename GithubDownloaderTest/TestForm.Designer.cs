@@ -54,12 +54,17 @@
             this.fbd_downloadpath = new System.Windows.Forms.FolderBrowserDialog();
             this.dgv_Releases = new System.Windows.Forms.DataGridView();
             this.Column5 = new System.Windows.Forms.DataGridViewButtonColumn();
+            this.Column9 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Column1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Column2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Column7 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Column3 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Column4 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Column6 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Column4 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Column8 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.ofd_PEMpath = new System.Windows.Forms.OpenFileDialog();
+            this.label9 = new System.Windows.Forms.Label();
+            this.txt_ContentType = new System.Windows.Forms.TextBox();
             this.groupBox1.SuspendLayout();
             this.grp_PEMMode.SuspendLayout();
             this.grp_PATMode.SuspendLayout();
@@ -70,6 +75,8 @@
             // 
             this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
+            this.groupBox1.Controls.Add(this.txt_ContentType);
+            this.groupBox1.Controls.Add(this.label9);
             this.groupBox1.Controls.Add(this.grp_PEMMode);
             this.groupBox1.Controls.Add(this.label5);
             this.groupBox1.Controls.Add(this.cmb_ReleaseMode);
@@ -85,7 +92,7 @@
             this.groupBox1.Controls.Add(this.label1);
             this.groupBox1.Location = new System.Drawing.Point(12, 12);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(302, 329);
+            this.groupBox1.Size = new System.Drawing.Size(302, 346);
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Mode: Public Repository";
@@ -99,9 +106,9 @@
             this.grp_PEMMode.Controls.Add(this.btn_PEMbrowser);
             this.grp_PEMMode.Controls.Add(this.label6);
             this.grp_PEMMode.Controls.Add(this.txt_PEMpath);
-            this.grp_PEMMode.Location = new System.Drawing.Point(9, 172);
+            this.grp_PEMMode.Location = new System.Drawing.Point(6, 191);
             this.grp_PEMMode.Name = "grp_PEMMode";
-            this.grp_PEMMode.Size = new System.Drawing.Size(287, 97);
+            this.grp_PEMMode.Size = new System.Drawing.Size(290, 97);
             this.grp_PEMMode.TabIndex = 19;
             this.grp_PEMMode.TabStop = false;
             this.grp_PEMMode.Text = "PEM Mode";
@@ -112,7 +119,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.txt_InstallationID.Location = new System.Drawing.Point(120, 71);
             this.txt_InstallationID.Name = "txt_InstallationID";
-            this.txt_InstallationID.Size = new System.Drawing.Size(161, 20);
+            this.txt_InstallationID.Size = new System.Drawing.Size(164, 20);
             this.txt_InstallationID.TabIndex = 19;
             // 
             // label8
@@ -130,7 +137,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.txt_AppID.Location = new System.Drawing.Point(120, 45);
             this.txt_AppID.Name = "txt_AppID";
-            this.txt_AppID.Size = new System.Drawing.Size(161, 20);
+            this.txt_AppID.Size = new System.Drawing.Size(164, 20);
             this.txt_AppID.TabIndex = 17;
             // 
             // label7
@@ -145,7 +152,7 @@
             // btn_PEMbrowser
             // 
             this.btn_PEMbrowser.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btn_PEMbrowser.Location = new System.Drawing.Point(252, 19);
+            this.btn_PEMbrowser.Location = new System.Drawing.Point(255, 19);
             this.btn_PEMbrowser.Name = "btn_PEMbrowser";
             this.btn_PEMbrowser.Size = new System.Drawing.Size(29, 20);
             this.btn_PEMbrowser.TabIndex = 15;
@@ -169,7 +176,7 @@
             this.txt_PEMpath.Location = new System.Drawing.Point(120, 19);
             this.txt_PEMpath.Name = "txt_PEMpath";
             this.txt_PEMpath.ReadOnly = true;
-            this.txt_PEMpath.Size = new System.Drawing.Size(126, 20);
+            this.txt_PEMpath.Size = new System.Drawing.Size(129, 20);
             this.txt_PEMpath.TabIndex = 14;
             // 
             // label5
@@ -195,9 +202,9 @@
             // 
             this.grp_PATMode.Controls.Add(this.txt_PATkey);
             this.grp_PATMode.Controls.Add(this.label4);
-            this.grp_PATMode.Location = new System.Drawing.Point(9, 121);
+            this.grp_PATMode.Location = new System.Drawing.Point(6, 140);
             this.grp_PATMode.Name = "grp_PATMode";
-            this.grp_PATMode.Size = new System.Drawing.Size(287, 45);
+            this.grp_PATMode.Size = new System.Drawing.Size(290, 45);
             this.grp_PATMode.TabIndex = 16;
             this.grp_PATMode.TabStop = false;
             this.grp_PATMode.Text = "PAT Mode";
@@ -208,7 +215,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.txt_PATkey.Location = new System.Drawing.Point(120, 19);
             this.txt_PATkey.Name = "txt_PATkey";
-            this.txt_PATkey.Size = new System.Drawing.Size(161, 20);
+            this.txt_PATkey.Size = new System.Drawing.Size(164, 20);
             this.txt_PATkey.TabIndex = 7;
             // 
             // label4
@@ -224,7 +231,7 @@
             // 
             this.txt_Progress.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.txt_Progress.Location = new System.Drawing.Point(6, 303);
+            this.txt_Progress.Location = new System.Drawing.Point(6, 320);
             this.txt_Progress.Name = "txt_Progress";
             this.txt_Progress.ReadOnly = true;
             this.txt_Progress.Size = new System.Drawing.Size(290, 20);
@@ -234,7 +241,7 @@
             // 
             this.btn_StartQuery.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.btn_StartQuery.Location = new System.Drawing.Point(6, 274);
+            this.btn_StartQuery.Location = new System.Drawing.Point(6, 291);
             this.btn_StartQuery.Name = "btn_StartQuery";
             this.btn_StartQuery.Size = new System.Drawing.Size(290, 23);
             this.btn_StartQuery.TabIndex = 9;
@@ -318,17 +325,20 @@
             this.dgv_Releases.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgv_Releases.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.Column5,
+            this.Column9,
             this.Column1,
             this.Column2,
+            this.Column7,
             this.Column3,
+            this.Column6,
             this.Column4,
-            this.Column6});
+            this.Column8});
             this.dgv_Releases.Location = new System.Drawing.Point(320, 12);
             this.dgv_Releases.Name = "dgv_Releases";
             this.dgv_Releases.ReadOnly = true;
             this.dgv_Releases.RowHeadersVisible = false;
             this.dgv_Releases.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
-            this.dgv_Releases.Size = new System.Drawing.Size(504, 329);
+            this.dgv_Releases.Size = new System.Drawing.Size(478, 346);
             this.dgv_Releases.TabIndex = 1;
             this.dgv_Releases.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgv_Releases_CellContentClick);
             // 
@@ -340,6 +350,15 @@
             this.Column5.ReadOnly = true;
             this.Column5.Resizable = System.Windows.Forms.DataGridViewTriState.False;
             this.Column5.Width = 25;
+            // 
+            // Column9
+            // 
+            this.Column9.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
+            this.Column9.HeaderText = "Version Name";
+            this.Column9.Name = "Column9";
+            this.Column9.ReadOnly = true;
+            this.Column9.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.Column9.Width = 79;
             // 
             // Column1
             // 
@@ -361,6 +380,15 @@
             this.Column2.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
             this.Column2.Width = 78;
             // 
+            // Column7
+            // 
+            this.Column7.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
+            this.Column7.HeaderText = "Release Type";
+            this.Column7.Name = "Column7";
+            this.Column7.ReadOnly = true;
+            this.Column7.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.Column7.Width = 79;
+            // 
             // Column3
             // 
             this.Column3.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
@@ -371,33 +399,60 @@
             this.Column3.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
             this.Column3.Width = 70;
             // 
+            // Column6
+            // 
+            this.Column6.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
+            this.Column6.HeaderText = "MimeType";
+            this.Column6.Name = "Column6";
+            this.Column6.ReadOnly = true;
+            this.Column6.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.Column6.Width = 62;
+            // 
             // Column4
             // 
-            this.Column4.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.Column4.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
             this.Column4.HeaderText = "Hash";
             this.Column4.Name = "Column4";
             this.Column4.ReadOnly = true;
             this.Column4.Resizable = System.Windows.Forms.DataGridViewTriState.False;
             this.Column4.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.Column4.Width = 38;
             // 
-            // Column6
+            // Column8
             // 
-            this.Column6.HeaderText = "DownloadURL";
-            this.Column6.Name = "Column6";
-            this.Column6.ReadOnly = true;
-            this.Column6.Resizable = System.Windows.Forms.DataGridViewTriState.False;
-            this.Column6.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            this.Column6.Visible = false;
+            this.Column8.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.Column8.HeaderText = " ";
+            this.Column8.Name = "Column8";
+            this.Column8.ReadOnly = true;
+            this.Column8.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
             // 
             // ofd_PEMpath
             // 
             this.ofd_PEMpath.Filter = "Github App Token|*.pem";
             // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(55, 124);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(74, 13);
+            this.label9.TabIndex = 21;
+            this.label9.Text = "Content Type:";
+            // 
+            // txt_ContentType
+            // 
+            this.txt_ContentType.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.txt_ContentType.Location = new System.Drawing.Point(135, 121);
+            this.txt_ContentType.Name = "txt_ContentType";
+            this.txt_ContentType.Size = new System.Drawing.Size(161, 20);
+            this.txt_ContentType.TabIndex = 22;
+            // 
             // TestForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(836, 353);
+            this.ClientSize = new System.Drawing.Size(810, 370);
             this.Controls.Add(this.dgv_Releases);
             this.Controls.Add(this.groupBox1);
             this.Name = "TestForm";
@@ -429,12 +484,6 @@
         private System.Windows.Forms.Button btn_StartQuery;
         private System.Windows.Forms.FolderBrowserDialog fbd_downloadpath;
         private System.Windows.Forms.DataGridView dgv_Releases;
-        private System.Windows.Forms.DataGridViewButtonColumn Column5;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Column1;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Column2;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Column3;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Column4;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Column6;
         private System.Windows.Forms.Button btn_PEMbrowser;
         private System.Windows.Forms.TextBox txt_PEMpath;
         private System.Windows.Forms.Label label6;
@@ -447,6 +496,17 @@
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.TextBox txt_AppID;
         private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.DataGridViewButtonColumn Column5;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Column9;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Column1;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Column2;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Column7;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Column3;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Column6;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Column4;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Column8;
+        private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.TextBox txt_ContentType;
     }
 }
 
