@@ -142,11 +142,11 @@ namespace GithubReleaseDownloader
         /// <summary>
         /// The version info
         /// </summary>
-        public Version VersionInfo
+        public SemanticVersion SemanticVersionInfo
         {
             get
             {
-                return Version.Parse(versionSequence);
+                return SemanticVersion.Parse(versionSequence);
             }
         }
 

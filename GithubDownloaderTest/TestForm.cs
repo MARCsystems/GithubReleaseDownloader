@@ -39,11 +39,19 @@ namespace GithubDownloaderTest
                     txt_Progress.Text = val;
                 });
             };
-            updater.CheckUpdateReport += (val) =>
+            updater.CheckUpdateReportReady += (isFetched) =>
             {
                 Invoke((MethodInvoker)delegate ()
                 {
-                    txt_Progress.Text = val;
+                    toggleInteractables(!isFetched);
+                    populateUpdateTable();
+
+                    btn_StartQuery.Text = isFetched ? "Unlock" : "Start Query";
+                    btn_StartQuery.Enabled = true;
+
+                    dgv_Releases.Enabled = true;
+
+                    isLocked = isFetched;
                 });
             };
             updater.DownloadReport += (downloadSuccess, val) =>
@@ -71,21 +79,6 @@ namespace GithubDownloaderTest
                 Invoke((MethodInvoker)delegate ()
                 {
                     txt_Progress.Text = $"[{sizeCurrent}/{sizeTotal}] {percVal.ToString("0.00")}%";
-                });
-            };
-            updater.CheckUpdateReportReady += (isFetched) =>
-            {
-                Invoke((MethodInvoker)delegate ()
-                {
-                    toggleInteractables(!isFetched);
-                    populateUpdateTable();
-
-                    btn_StartQuery.Text = isFetched ? "Unlock" : "Start Query";
-                    btn_StartQuery.Enabled = true;
-
-                    dgv_Releases.Enabled = true;
-
-                    isLocked = isFetched;
                 });
             };
         }
@@ -134,7 +127,7 @@ namespace GithubDownloaderTest
 
             toggleInteractables(false);
             updater.DownloadSizeLimit = 2;
-            updater.CurrentAppVersion = new Version(0, 0, 0, 0);
+            updater.CurrentAppVersion = SemanticVersion.Parse("0.0.0.0");
             updater.RepositoryOwner = txt_RepoOwner.Text.Trim();
             updater.RepositoryName = txt_RepoName.Text.Trim();
             updater.UpdateFileSavePath = txt_TempInstallerPath.Text.Trim();

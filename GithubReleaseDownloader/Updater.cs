@@ -18,10 +18,17 @@ namespace GithubReleaseDownloader
     public class Updater
     {
         #region Events
-        public event Action<string> CheckUpdateReport;
+        /// <summary>
+        /// Message event for general messages.
+        /// Includes messages from Update Checking, Download, and Authentication.
+        /// </summary>
+        public event Action<string> GlobalMessage;
+        /// <summary>
+        /// Event that triggers after successful update check.
+        /// ARG 1: True if the current app version is lower than detected from Github Releases 
+        /// </summary>
         public event Action<bool> CheckUpdateReportReady;
         public event Action<string, string, double> ReportDownloadPercentage;
-        public event Action<string> GlobalMessage;
         public event Action<bool, string> DownloadReport;
         public event Action DownloadEventStopped;
         #endregion
@@ -29,7 +36,7 @@ namespace GithubReleaseDownloader
         #region Private Variables
         private string repositoryOwner = "";
         private string repositoryName = "";
-        private Version currentAppVersion = new Version(0,0,0,0);
+        private SemanticVersion currentAppVersion;
         private string updateFilePath = "";
         private string pat_Token = "";
         private string pem_Data = "";
@@ -162,7 +169,7 @@ namespace GithubReleaseDownloader
         /// <summary>
         /// The version of the application. Must come from Assembly.GetExecutingAssembly().GetName().Version
         /// </summary>
-        public Version CurrentAppVersion
+        public SemanticVersion CurrentAppVersion
         {
             set { currentAppVersion = value; }
             get { return currentAppVersion; }
@@ -259,7 +266,7 @@ namespace GithubReleaseDownloader
         {
             get
             {
-                return versions.Where(v => !v.IsPreRelease).Where(v => v.VersionInfo.CompareTo(CurrentAppVersion) == 1).FirstOrDefault();
+                return versions.Where(v => !v.IsPreRelease).Where(v => v.SemanticVersionInfo.CompareTo(CurrentAppVersion) == 1).FirstOrDefault();
             }
         }
 
@@ -270,7 +277,7 @@ namespace GithubReleaseDownloader
         {
             get
             {
-                return versions.Where(v => v.IsPreRelease).Where(v => v.VersionInfo.CompareTo(CurrentAppVersion) == 1).Where(v => v.VersionInfo.CompareTo(LatestStable?.VersionInfo ?? currentAppVersion) == 1).FirstOrDefault();
+                return versions.Where(v => v.IsPreRelease).Where(v => v.SemanticVersionInfo.CompareTo(CurrentAppVersion) == 1)/*.Where(v => v.VersionInfo.CompareTo(LatestStable?.VersionInfo ?? currentAppVersion) == 1)*/.FirstOrDefault();
             }
         }
 
@@ -356,25 +363,27 @@ namespace GithubReleaseDownloader
                                             }
                                         }
                                         versions.Add(versionEntry);
-                                        CheckUpdateReport?.Invoke($"Fetched version {versionEntry.VersionSequence}");
+                                        GlobalMessage?.Invoke($"Fetched version {versionEntry.VersionSequence}");
                                     }
-                                    VersionEntry stableVersion = versions.Where(v => !v.IsPreRelease).Where(v => v.VersionInfo.CompareTo(currentAppVersion) == 1).OrderByDescending(v => v.VersionInfo).FirstOrDefault();
 
-                                    VersionEntry prereleaseVersion = versions.Where(v => v.IsPreRelease).Where(v => v.VersionInfo.CompareTo(currentAppVersion) == 1).Where(v => v.VersionInfo.CompareTo(stableVersion?.VersionInfo ?? currentAppVersion) == 1).OrderByDescending(v => v.VersionInfo).FirstOrDefault();
+                                    // Faulty, cannot recognize version.
+                                    VersionEntry stableVersion = versions.Where(v => !v.IsPreRelease).Where(v => v.SemanticVersionInfo.CompareTo(currentAppVersion) == 1).OrderByDescending(v => v.SemanticVersionInfo).FirstOrDefault();
+
+                                    VersionEntry prereleaseVersion = versions.Where(v => v.IsPreRelease).Where(v => v.SemanticVersionInfo.CompareTo(currentAppVersion) == 1).Where(v => v.SemanticVersionInfo.CompareTo(stableVersion?.SemanticVersionInfo ?? currentAppVersion) == 1).OrderByDescending(v => v.SemanticVersionInfo).FirstOrDefault();
 
                                     if (stableVersion != null || prereleaseVersion != null)
                                     {
-                                        CheckUpdateReport?.Invoke($"{(stableVersion != null ? "Stable" : "")}{(stableVersion != null && prereleaseVersion != null ? " and " : "")}{(prereleaseVersion != null ? "Pre-Release" : "")} version{(stableVersion != null && prereleaseVersion != null ? "s" : "")} are available for download.");
+                                        GlobalMessage?.Invoke($"{(stableVersion != null ? "Stable" : "")}{(stableVersion != null && prereleaseVersion != null ? " and " : "")}{(prereleaseVersion != null ? "Pre-Release" : "")} version{(stableVersion != null && prereleaseVersion != null ? "s" : "")} are available for download.");
                                     }
                                     else
                                     {
-                                        CheckUpdateReport?.Invoke("No updates available.");
+                                        GlobalMessage?.Invoke("No updates available.");
                                     }
                                     CheckUpdateReportReady?.Invoke(versions.Count > 0);
                                 }
                                 else
                                 {
-                                    CheckUpdateReport?.Invoke($"Cannot get to Github Release Server! Redirect Detected at [{response.RequestMessage.RequestUri.ToString()}] [Status Code {response.StatusCode}]");
+                                    GlobalMessage?.Invoke($"Cannot get to Github Release Server! Redirect Detected at [{response.RequestMessage.RequestUri.ToString()}] [Status Code {response.StatusCode}]");
                                     if (interruptIfFail)
                                     {
                                         CheckUpdateReportReady?.Invoke(false);
@@ -384,7 +393,7 @@ namespace GithubReleaseDownloader
                             }
                             else
                             {
-                                CheckUpdateReport?.Invoke($"Failed to fetch updates! [Status Code {(int)response.StatusCode}, {response.ReasonPhrase}]");
+                                GlobalMessage?.Invoke($"Failed to fetch updates! [Status Code {(int)response.StatusCode}, {response.ReasonPhrase}]");
                                 if (interruptIfFail)
                                 {
                                     CheckUpdateReportReady?.Invoke(false);
@@ -395,7 +404,7 @@ namespace GithubReleaseDownloader
                     }
                     catch (Exception err)
                     {
-                        CheckUpdateReport?.Invoke($"Failed to fetch version releases. The following error(s) has occured! [{err.Message}]");
+                        GlobalMessage?.Invoke($"Failed to fetch version releases. The following error(s) has occured! [{err.Message}]");
                         if (interruptIfFail)
                         {
                             CheckUpdateReportReady?.Invoke(false);
@@ -434,6 +443,13 @@ namespace GithubReleaseDownloader
             downloadThread.Name = $"Download Activity";
             downloadThread.IsBackground = true;
             downloadThread.Start();
+        }
+        #endregion
+
+        #region Global
+        internal void DebugPrint(string message)
+        {
+
         }
         #endregion
     }
