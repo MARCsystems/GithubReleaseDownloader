@@ -127,7 +127,19 @@ namespace GithubReleaseDownloader
         public int CompareTo(SemanticVersion other)
         {
             // Compare Major
-            return 0;
+            if (this.v_1 > other.v_1) { return 1; }
+            else if (this.v_1 < other.v_1) { return -1; }
+
+            // Compare Minor
+            if (this.v_2 > other.v_2) { return 1; }
+            else if (this.v_2 < other.v_2) { return -1; }
+
+            // Compare Legacy Build / Semantic Patch
+            if(this.v_3>other.v_3) { return 1; }
+            else if (this.v_3<other.v_3) { return -1; }
+
+                // If nothing else to compare
+                return 0;
         }
     }
 }
